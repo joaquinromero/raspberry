@@ -1,2 +1,2 @@
 #!/bin/bash
-apt-get install console-data
+apt-get -y install console-data
