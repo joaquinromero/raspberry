@@ -1,6 +1,6 @@
 #!/bin/bash
 # Get and compile ffmpeg
-apt-get -y install git
+apt-get -y install git gcc make binutils
 cd /usr/src
 git clone git://git.videolan.org/x264
 cd x264
