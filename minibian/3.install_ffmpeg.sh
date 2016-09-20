@@ -10,7 +10,7 @@ make install
 cd ..
 git clone git://source.ffmpeg.org/ffmpeg.git
 cd ffmpeg
-apt-get install libmp3lame-dev libomxil-bellagio-dev
+apt-get -y install libmp3lame-dev libomxil-bellagio-dev
 ./configure --arch=armel --target-os=linux --enable-gpl --enable-libx264 --enable-libmp3lame --enable-omx-rpi --disable-debug --enable-version3 --enable-nonfree
 make -j4
 make install
