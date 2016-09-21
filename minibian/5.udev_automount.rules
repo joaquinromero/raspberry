@@ -1,24 +1,75 @@
-KERNEL!="sd[a-z][0-9]", GOTO="media_by_label_auto_mount_end"
+#! /bin/sh
 
-# Import FS infos
+#######################################
+#    USB Flash Drives automounting    #
+#######################################
+
+# start at sdb to ignore the system hard drive
+KERNEL!="sd[b-z]*", GOTO="exit"
+ACTION=="add", PROGRAM!="/sbin/blkid %N", GOTO="exit"
+
+# import some useful filesystem info as variables
 IMPORT{program}="/sbin/blkid -o udev -p %N"
 
-# Get a label if present, otherwise specify one
+# get the label if present, otherwise assign one based on device/partition
 ENV{ID_FS_LABEL}!="", ENV{dir_name}="%E{ID_FS_LABEL}"
-ENV{ID_FS_LABEL}=="", ENV{dir_name}="usbhd-%k"
+ENV{ID_FS_LABEL}=="", ENV{dir_name}="flash_drive_%k"
 
-# Global mount options
-ACTION=="add", ENV{mount_options}="relatime"
-# Filesystem-specific mount options
-ACTION=="add", ENV{ID_FS_TYPE}=="vfat|ntfs", ENV{mount_options}="$env{mount_options},utf8,gid=100,umask=002"
+# create the dir in /media and symlink it to /mnt
+ACTION=="add", RUN+="/bin/mkdir -p '/media/%E{dir_name}'"
 
-# Mount the device
-ACTION=="add", RUN+="/bin/mkdir -p /media/%E{dir_name}", RUN+="/bin/mount /dev/%k /media/%E{dir_name}"
-#-o $env{mount_options}
-#ACTION=="add", RUN+="/bin/mkdir -p /media/%E{dir_name}", RUN+="/usr/bin/udisksctl -o $env{mount_options} -b /dev/%k -p /media/%E{dir_name}"
+# global mount options
+#ACTION=="add", ENV{mount_options}="relatime"
 
-# Clean up after removal
-ACTION=="remove", ENV{dir_name}!="", RUN+="/bin/umount -l /media/%E{dir_name}", RUN+="/bin/rmdir /media/%E{dir_name}"
+# filesystem-specific mount options (777/666 dir/file perms for ntfs/vfat)
 
-# Exit
-LABEL="media_by_label_auto_mount_end"
+
+
+########
+# vfat #
+########
+
+# vfat specific mount options
+ACTION=="add", ENV{mount_options_vfat}="gid=100,dmask=000,fmask=111,utf8,flush,rw,noatime,users"
+
+# add device to /etc/fstab
+ACTION=="add", ENV{ID_FS_TYPE}=="vfat", RUN+="/bin/sed -i '$a\/dev/%k /media/%E{dir_name} vfat %E{mount_options_vfat} 0 0' /etc/fstab"
+
+# mount device
+ACTION=="add", ENV{ID_FS_TYPE}=="vfat", RUN+="/bin/mount -t auto -o %E{mount_options_vfat} /dev/%k '/media/%E{dir_name}'"
+
+
+
+########
+# ntfs #
+########
+
+# ntfs specific mount options
+ACTION=="add", ENV{mount_options_ntfs}="gid=100,dmask=000,fmask=111,utf8,flush,rw,noatime,users"
+
+# add device to /etc/fstab
+ACTION=="add", ENV{ID_FS_TYPE}=="ntfs", RUN+="/bin/sed -i '$a\/dev/%k /media/%E{dir_name} ntfs-3g %E{mount_options_ntfs} 0 0' /etc/fstab"
+
+# mount device
+ACTION=="add", ENV{ID_FS_TYPE}=="ntfs", RUN+="/bin/mount -t ntfs-3g -o %E{mount_options_ntfs} /dev/%k '/media/%E{dir_name}'"
+
+
+
+#####################
+# other filesystems #
+#####################
+
+# ntfs specific mount options
+ACTION=="add", ENV{mount_options_other}="gid=100,dmask=000,fmask=111,utf8,flush,rw,noatime,users"
+
+# automount all other filesystems
+ACTION=="add", ENV{ID_FS_TYPE}!="(ntfs|vfat)", RUN+="/bin/mount -t auto -o %E{mount_options_other} /dev/%k '/media/%E{dir_name}'"
+
+#################################
+# clean up after device removal #
+#################################
+ACTION=="remove", ENV{dir_name}!="", RUN+="/bin/umount -l '/media/%E{dir_name}'", RUN+="/bin/rmdir '/media/%E{dir_name}'"
+ACTION=="remove", ENV{ID_FS_TYPE}!="", RUN+="/bin/sed -i '/\/dev\/%k /d' /etc/fstab"
+
+# exit
+LABEL="exit" 
