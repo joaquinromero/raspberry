@@ -16,4 +16,4 @@ ACTION=="remove", ENV{dir_name}!="", RUN+="/bin/umount -l /media/%E{dir_name}", 
 LABEL="media_by_label_auto_mount_end"
 
 #reload rules with
-udevadm control --reload-rules
+#udevadm control --reload-rules
