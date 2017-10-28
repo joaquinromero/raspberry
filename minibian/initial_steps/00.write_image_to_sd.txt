@@ -1,1 +1,2 @@
-
+# write the minibian image to sd card
+# from windows use Win32 Disk Imager
