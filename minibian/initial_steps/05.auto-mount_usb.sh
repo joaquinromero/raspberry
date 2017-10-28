@@ -1,4 +1,10 @@
+#!/bin/bash
+#reference https://www.axllent.org/docs/view/auto-mounting-usb-storage/
+#reference log https://unix.stackexchange.com/questions/36251/in-which-log-should-i-check-for-udev-errors
+apt-get install udev
+
 #this file must be in /etc/udev/rules.d/11-media-by-label-auto-mount.rules
+------------
 KERNEL!="sd[a-z][0-9]", GOTO="media_by_label_auto_mount_end"  
 # Import FS infos  
 IMPORT{program}="/sbin/blkid -o udev -p %N"  
@@ -15,6 +21,6 @@ ACTION=="add", RUN+="/bin/mkdir -p /media/%E{dir_name}", RUN+="/bin/mount -o $en
 ACTION=="remove", ENV{dir_name}!="", RUN+="/bin/umount -l /media/%E{dir_name}", RUN+="/bin/rmdir /media/%E{dir_name}"  
 # Exit  
 LABEL="media_by_label_auto_mount_end"
-
+-------------
 #reload rules with
-#udevadm control --reload-rules
+udevadm control --reload-rules
