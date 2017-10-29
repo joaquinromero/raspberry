@@ -2,6 +2,8 @@
 adduser --system --gecos "RemoteIrControl Service" --disabled-password --group --home /var/lib/remoteIrControl remoteircontrol
 adduser <username> remoteircontrol
 
+cp -r /usr/lib/jetty-9.4.7/demo-base /var/lib/remoteIrControl/jetty-base
+
 nano /etc/systemd/system/remoteirwifi-jetty.service
 ------------------------------------
 #systemd unit file for jetty service
