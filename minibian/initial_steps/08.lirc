@@ -12,7 +12,7 @@ lirc_rpi gpio_out_pin=22
 ----------------------------------
 # Make sure that the gpio_out_pin parameter points to the pin controlling the IR LED (in this case, it's pin 22). 
 
-nano /boot/config.txt
+nano /boot/config.txt     #(reference: https://github.com/raspberrypi/firmware/blob/master/boot/overlays/README)
 --------------------------------
 dtoverlay=lirc-rpi,gpio_out_pin=22,gpio_in_pin=18
 --------------------------------
