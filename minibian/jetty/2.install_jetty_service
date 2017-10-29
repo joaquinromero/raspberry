@@ -1,0 +1,2 @@
+#!/bin/bash
+adduser --system --gecos "RemoteControl Service" --disabled-password --group --home /var/lib/deluge deluge
