@@ -1,2 +1,38 @@
 #!/bin/bash
-adduser --system --gecos "RemoteControl Service" --disabled-password --group --home /var/lib/deluge deluge
+adduser --system --gecos "RemoteIrControl Service" --disabled-password --group --home /var/lib/remoteIrControl remoteircontrol
+adduser <username> remoteircontrol
+
+nano /etc/systemd/system/remoteirwifi-jetty.service
+------------------------------------
+#systemd unit file for jetty service
+[Unit]
+Description=Remote Ir Wifi application server
+After=syslog.target network.target remote-fs.target nss-lookup.target
+UMask=007
+[Service]
+Environment=JETTY_HOME=/usr/lib/jetty-9.4.7
+Environment=JETTY_BASE=/var/lib/remoteIrControl/jetty-base
+Environment="JETTY_ARGS=jetty.port=8085"
+Environment=JETTY_HOST=0.0.0.0
+Environment=JETTY_USER=remoteircontrol
+Environment=JETTY_PID=/var/lib/remoteIrControl/jetty.pid
+#Environment="JAVA_OPTIONS=-Djava.io.tmpdir=/var/lib/remoteIrControl/jetty-base/work -Xdebug -Xrunjdwp:transport=dt_socket,address=6006,server=y,suspend=n -Xmx512M"
+#Environment=JETTY_LOGS=/opt/jetty/jetty-base/logs
+#Environment=JAVA_HOME=/usr/bin/java
+#Environment=NO_START=0
+#Environment=JETTY_START_LOG=/opt/jetty/run/jetty-start.log
+
+Type=forking
+PIDFile=/var/lib/remoteIrControl/jetty.pid
+ExecStart=/usr/bin/authbind --deep /usr/lib/jetty-9.4.7/bin/jetty.sh start
+ExecStop=/usr/lib/jetty-9.4.7/bin/jetty.sh stop
+ExecReload=/usr/bin/authbind --deep /usr/lib/jetty-9.4.7/bin/jetty.sh restart
+User=remoteircontrol
+Restart=on-failure
+#Configures the time to wait before service is sstopped forcefully.
+TimeoutStopSec=60
+[Install]
+WantedBy=multi-user.target
+---------------------------------------
+systemctl enable /etc/systemd/system/remoteirwifi-jetty.service
+systemctl start remoteirwifi-jetty
