@@ -7,6 +7,8 @@ rm -r /var/lib/remoteIrControl/jetty-base/webapps/*
 rm -r /var/lib/remoteIrControl/jetty-base/etc/*
 rm -r /var/lib/remoteIrControl/jetty-base/lib/ext/*
 
+apt-get install authbind
+
 nano /etc/systemd/system/remoteirwifi-jetty.service
 ------------------------------------
 #systemd unit file for jetty service
