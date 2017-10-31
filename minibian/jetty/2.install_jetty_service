@@ -7,7 +7,9 @@ rm -r /var/lib/remoteIrControl/jetty-base/webapps/*
 rm -r /var/lib/remoteIrControl/jetty-base/etc/*
 rm -r /var/lib/remoteIrControl/jetty-base/lib/ext/*
 rm /var/lib/remoteIrControl/jetty-base/start.d/demo.ini
-chown -R remoteircontrol:remoteircontrol jetty-base
+rm /var/lib/remoteIrControl/jetty-base/start.d/https.ini
+chown -R remoteircontrol:remoteircontrol /var/lib/remoteIrControl/jetty-base
+
 runuser -l remoteircontrol -c 'cp /usr/lib/jetty-9.4.7/demo-base/etc/keystore /var/lib/remoteIrControl/jetty-base/etc/'
 
 apt-get install authbind
