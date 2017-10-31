@@ -5,6 +5,7 @@ mkdir /usr/lib/jvm
 mv jdk-8u151-linux-arm32-vfp-hflt.tar.gz /usr/lib/jvm/
 cd /usr/lib/jvm/
 tar -xzvf jdk-8u151-linux-arm32-vfp-hflt.tar.gz
+rm /usr/lib/jvm/jdk-8u151-linux-arm32-vfp-hflt.tar.gz
 
 # add the new jdk alternatives (2000 is the priority and feel free to pick a different number):
 update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk1.8.0_151/jre/bin/java 2000
