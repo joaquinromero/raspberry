@@ -45,7 +45,7 @@ LIRCD_CONF=""
 LIRCMD_CONF=""
 ---------------------------------
 
-nano /etc/lirc/hardware.conf 
+nano /etc/lirc/lircd.conf 
 ---------------------------------
 # Please make this file available to others
 # by sending it to <lirc@bartelmus.de>
