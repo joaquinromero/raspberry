@@ -1,26 +1,25 @@
 #!/bin/bash
-#reference https://www.axllent.org/docs/view/auto-mounting-usb-storage/
-#reference log https://unix.stackexchange.com/questions/36251/in-which-log-should-i-check-for-udev-errors
-apt-get install udev
 
-#this file must be in /etc/udev/rules.d/11-media-by-label-auto-mount.rules
-------------
-KERNEL!="sd[a-z][0-9]", GOTO="media_by_label_auto_mount_end"  
-# Import FS infos  
-IMPORT{program}="/sbin/blkid -o udev -p %N"  
-# Get a label if present, otherwise specify one  
-ENV{ID_FS_LABEL}!="", ENV{dir_name}="%E{ID_FS_LABEL}"  
-ENV{ID_FS_LABEL}=="", ENV{dir_name}="usbhd-%k"  
-# Global mount options  
-ACTION=="add", ENV{mount_options}="relatime"  
-# Filesystem-specific mount options  
-ACTION=="add", ENV{ID_FS_TYPE}=="vfat|ntfs", ENV{mount_options}="$env{mount_options},utf8,gid=100,umask=002"  
-# Mount the device  
-ACTION=="add", RUN+="/bin/mkdir -p /media/%E{dir_name}", RUN+="/bin/mount -o $env{mount_options} /dev/%k /media/%E{dir_name}"  
-# Clean up after removal  
-ACTION=="remove", ENV{dir_name}!="", RUN+="/bin/umount -l /media/%E{dir_name}", RUN+="/bin/rmdir /media/%E{dir_name}"  
-# Exit  
-LABEL="media_by_label_auto_mount_end"
--------------
-#reload rules with
-udevadm control --reload-rules
+#Install udisks-glue to automount usb drives without starting the desktop.
+# install udisks-glue
+apt-get install udisks-glue policykit-1
+# edit config file to enable automount
+sed -i '/^match disks /a\    automount = true' /etc/udisks-glue.conf
+
+#Supervisor provides a simple way to add user services, without messing with SysV or other init scripts.
+apt-get install supervisor
+
+nano /etc/supervisor/conf.d/udisks-glue.conf:
+--------------------------------------------------------
+[program:udisks-glue]
+user = pi
+command = udisks-glue -f
+autostart = true
+autorestart = true
+stdout_logfile = /var/log/supervisor/udisks-glue-out.log
+stderr_logfile = /var/log/supervisor/udisks-glue-err.log
+--------------------------------------------------------
+# reload supervisor config
+supervisorctl reload
+
+#The udisks-glue program should start automatically on boot. Use supervisorctl with start, stop, and restart to manually control Supervisor programs: supervisorctl restart udisks-glue.
