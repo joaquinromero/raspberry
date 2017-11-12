@@ -52,3 +52,6 @@ default {
 usermod -a -G mountgr <user>
 #arrancar servicio
 systemctl enable udisks-glue.service
+#ver logs
+journalctl -u udisks-glue.service
+
