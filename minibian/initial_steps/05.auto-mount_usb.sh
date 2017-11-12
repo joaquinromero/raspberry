@@ -39,10 +39,16 @@ filter disks {
 }
 
 match disks {
-    automount = true
-#    automount_options = {sync,umask=000}
-    post_insertion_command = "udisks --mount %device_file --mount-options sync,umask=007"
+     automount = true
+     automount_options = {'noatime','sync','umask=007'}
+     post_mount_command = 'echo "Devicd %device_file mounted in %mount_point"'
+}
+
+default {
+        post_insertion_command = 'echo "Device %device_file did not match any rules."; ls -al "%device_file"; echo "blkid: $(/sbin/blkid %device_file)"; /usr/bin/udisks --show-info %device_file'
 }
 #-------------------------------------------------------------
 #añadir usuarios al grupo
 usermod -a -G mountgr <user>
+#arrancar servicio
+systemctl enable udisks-glue.service
